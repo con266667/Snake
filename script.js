@@ -1,11 +1,13 @@
 var canvas = document.getElementById("canvas");
 var ctx = canvas.getContext("2d");
-ctx.lineWidth = 5;
+ctx.lineWidth = 7;
 var isPlaying = true;
 var hor = true;
+var score = 0;
 var length = 100;
 var x = Math.random()*(300);
 var y = Math.random()*(300);
+var speed = 200;
 var start = {
     "x": x,
     "y": y,
@@ -24,38 +26,66 @@ var circy = Math.random()*(500-20);
 circx = circx<20?circx+20:circx;
 circy = circy<20?circy+20:circy;
 
+function reset(){
+    score = 0;
+    document.getElementById("score").innerHTML = "Score: "+score;
+    isPlaying = true;
+    hor = true;
+    length = 100;
+    x = Math.random()*(300);
+    y = Math.random()*(300);
+    start = {
+        "x": x,
+        "y": y,
+        "dir": "r"
+    }
+    end = {
+        "x": x+length,
+        "y": y,
+        "dir": "r"
+    }
+    lengthDelay = false;
+    pivs = [];
+
+    circx = Math.random()*(500-20);
+    circy = Math.random()*(500-20);
+    circx = circx<20?circx+20:circx;
+    circy = circy<20?circy+20:circy;
+}
+
 play();
 
 function play(){
-    setTimeout(function(){
-        ctx.clearRect(0, 0, 500, 500);
-        createCircle(circx,circy);
-        shiftEnd();
-        collisions();
-        var pivx;
-        var pivy;
-        if(pivs.length > 0){
-            pivx = pivs[0]["x"];
-            pivy = pivs[0]["y"];
-        } else {
-            pivx = -2;
-            pivy = -2;
-        }
-        if(start["x"] == pivx && start["y"] == pivy){
-            start["dir"] = pivs[0]["dir"];
+    if(isPlaying){
+        setTimeout(function(){
+            ctx.clearRect(0, 0, 500, 500);
+            createCircle(circx,circy);
+            shiftEnd();
+            collisions();
+            var pivx;
+            var pivy;
+            if(pivs.length > 0){
+                pivx = pivs[0]["x"];
+                pivy = pivs[0]["y"];
+            } else {
+                pivx = -2;
+                pivy = -2;
+            }
+            if(start["x"] == pivx && start["y"] == pivy){
+                start["dir"] = pivs[0]["dir"];
+                shiftStart();
+                pivs.shift();
+            } else {
             shiftStart();
-            pivs.shift();
-        } else {
-           shiftStart();
-        }
-        drawLine();
-        play();
-    }, 300)
+            }
+            drawLine();
+            play();
+        }, speed)
+    }
 }
 
 function shiftStart(){
     if(!lengthDelay){
-        
         if(start["dir"] == "r"){
             start["x"] = start["x"]+10;
         } else if(start["dir"] == "l"){
@@ -83,22 +113,54 @@ function shiftEnd(){
 
 function collisions(){
     if(foodCollision()){
+        score = score + 100;
+        document.getElementById("score").innerHTML = "Score: "+score;
         lengthDelay = true;
         circx = Math.random()*(500-20);
         circy = Math.random()*(500-20);
         circx = circx<20?circx+20:circx;
         circy = circy<20?circy+20:circy;
     }
+    if(sideCollision() || selfCollision()){
+        reset();
+    }
 }
 
-function selfCollision(){
-    //Good Luck!
+function selfCollision(){ 
+    var points = [];
+    points.push(start);  
+    for(i = 0; i < pivs.length; i++){
+        points.push(pivs[i]);
+    }
+    return calculateLines(points);
+}
+
+function calculateLines(points){
+    for(i=0;i<points.length-1;i++){
+        var line = {
+            "x1":points[i]["x"],
+            "y1":points[i]["y"],
+            "x2":points[i+1]["x"],
+            "y2":points[i+1]["y"],
+        }
+        return checkIntersect(line);
+    }
+}
+
+function checkIntersect(line){
+    var distAB = Math.sqrt(Math.pow((line["x1"]-line["x2"]), 2) + Math.pow((line["y1"]-line["y2"]), 2));
+    var distAC = Math.sqrt(Math.pow((line["x1"]-end["x"]), 2) + Math.pow((line["y1"]-end["y"]), 2));
+    var distBC = Math.sqrt(Math.pow((line["x2"]-end["x"]), 2) + Math.pow((line["y2"]-end["y"]), 2));
+    if(distAC+distBC - distAB < 0.5 && distAC+distBC - distAB > -0.5){
+        return true;
+    } else {
+        return false;
+    }
 }
 
 function foodCollision(){
     var dist = Math.sqrt(Math.pow((end["x"]-circx), 2) + Math.pow((end["y"]-circy), 2));
-    console.log(dist);
-    if(dist < 6){
+    if(dist < 8){
         return true;
     } else {
         return false;
@@ -106,21 +168,16 @@ function foodCollision(){
 }
 
 function sideCollision(){
-    if(end["x"] > 499 || end["y"] > 499){
+    if(end["x"] > 499 || end["y"] > 499 || end["x"] < 0 || end["y"] < 0){
         return true;
     } else {
         return false;
     }
 }
 
-function lineLength(){
-    var len = Math.sqrt(Math.pow((end["x"]-start["x"]), 2) + Math.pow((end["y"]-start["y"]), 2));
-    return len;
-}
-
 function createCircle(x,y){
     ctx.beginPath();
-    ctx.arc(x, y, 3, 0, 2 * Math.PI);
+    ctx.arc(x, y, 2, 0, 2 * Math.PI);
     ctx.stroke();
 }
 
