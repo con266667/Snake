@@ -30,6 +30,7 @@ circy = circy<20?circy+20:circy;
 
 function reset(){
     score = 0;
+    speed = 200;
     document.getElementById("score").innerHTML = "Score: "+score;
     isPlaying = true;
     hor = true;
@@ -124,6 +125,7 @@ function shiftEnd(){
 function collisions(){
     if(foodCollision()){
         score = score + 100;
+        speed = speed - 5;
         document.getElementById("score").innerHTML = "Score: "+score;
         lengthDelay = true;
         circx = Math.random()*(500-20);
