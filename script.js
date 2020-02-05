@@ -8,6 +8,7 @@ var length = 100;
 var x = Math.random()*(300);
 var y = Math.random()*(300);
 var speed = 200;
+var nextpiv;
 var start = {
     "x": x,
     "y": y,
@@ -60,6 +61,7 @@ function play(){
         setTimeout(function(){
             ctx.clearRect(0, 0, 500, 500);
             createCircle(circx,circy);
+            pushPiv();
             shiftEnd();
             collisions();
             var pivx;
@@ -81,6 +83,13 @@ function play(){
             drawLine();
             play();
         }, speed)
+    }
+}
+
+function pushPiv(){
+    if(nextpiv){
+        pivs.push(nextpiv);
+        nextpiv = null;
     }
 }
 
@@ -208,5 +217,6 @@ document.addEventListener("keydown", function(event) {
         end["dir"] = "r";
         hor = true;
     }
-    pivs.push({"x": end["x"], "y":end["y"], "dir":end["dir"]});
+    nextpiv = {"x": end["x"], "y":end["y"], "dir":end["dir"]}
+    //pivs.push({"x": end["x"], "y":end["y"], "dir":end["dir"]});
 })
