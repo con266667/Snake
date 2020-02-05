@@ -8,6 +8,7 @@ var length = 100;
 var x = Math.random()*(300);
 var y = Math.random()*(300);
 var speed = 200;
+var interval = 10;
 var nextpiv;
 var start = {
     "x": x,
@@ -96,13 +97,13 @@ function pushPiv(){
 function shiftStart(){
     if(!lengthDelay){
         if(start["dir"] == "r"){
-            start["x"] = start["x"]+10;
+            start["x"] = start["x"]+interval;
         } else if(start["dir"] == "l"){
-            start["x"] = start["x"]-10;
+            start["x"] = start["x"]-interval;
         } else if(start["dir"] == "u"){
-            start["y"] = start["y"]-10;
+            start["y"] = start["y"]-interval;
         } else{
-            start["y"] = start["y"]+10;
+            start["y"] = start["y"]+interval;
         }
     }
     lengthDelay = false;
@@ -110,13 +111,13 @@ function shiftStart(){
 
 function shiftEnd(){
     if(end["dir"] == "u"){
-        end["y"]=end["y"]-10;
+        end["y"]=end["y"]-interval;
     } else if(end["dir"] == "d"){
-        end["y"]=end["y"]+10;
+        end["y"]=end["y"]+interval;
     } else if(end["dir"] == "l"){
-        end["x"]=end["x"]-10;
+        end["x"]=end["x"]-interval;
     } else {
-        end["x"]=end["x"]+10;
+        end["x"]=end["x"]+interval;
     }
 }
 
